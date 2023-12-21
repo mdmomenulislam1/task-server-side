@@ -30,10 +30,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-       
-
-
-
+    
         const toDoCollection = client.db("toDos").collection("toDo");
 
         app.post("/toDo", async (req, res) => {
