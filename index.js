@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 
@@ -30,29 +30,49 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        const userCollection = client.db("userDB").collection("user");
-        app.post('/user', async (req, res) => {
-            const user = req.body;
-            const query = { email: user.email }
-            const existingUser = await userCollection.findOne(query);
-            if (existingUser) {
-                return res.send({ message: 'user already exists', insertedId: null })
-            }
-            const result = await userCollection.insertOne(user);
-            res.send(result);
-        });
+       
 
-        app.get("/user", async (req, res) => {
-            const result = await userCollection.find().toArray();
-            res.send(result);
-        });
 
 
         const toDoCollection = client.db("toDos").collection("toDo");
+
+        app.post("/toDo", async (req, res) => {
+            const task = req.body;
+            const result = await toDoCollection.insertOne(task);
+            res.send(result);
+        });
+
+        app.patch('/toDo/:id', async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedFields = {
+                $set: {
+                name: data.name,
+                taskHolderName: data.taskHolderName,
+                taskHolderEmail: data.taskHolderEmail,
+                deadline: data.deadline,
+                status: data.status,
+                description: data.description
+            }
+        };
+    
+            const result = await toDoCollection.updateOne(filter, updatedFields);
+            res.send(result);
+    });
+
         app.get("/toDo", async (req, res) => {
             const result = await toDoCollection.find().toArray();
             res.send(result);
         });
+
+
+        app.delete('/toDo/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await toDoCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
 
@@ -74,8 +94,7 @@ async function run() {
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
+        
     }
 }
 run().catch(console.dir);
