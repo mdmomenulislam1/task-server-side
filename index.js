@@ -71,8 +71,6 @@ async function run() {
             res.send(result);
         })
 
-
-
         const BeneficiaryCollection = client.db("benefisharyDB").collection("benefit");
         app.get("/benefit", async (req, res) => {
             const result = await BeneficiaryCollection.find().toArray();
