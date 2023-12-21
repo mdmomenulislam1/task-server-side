@@ -48,6 +48,7 @@ async function run() {
                 name: data.name,
                 taskHolderName: data.taskHolderName,
                 taskHolderEmail: data.taskHolderEmail,
+                priority: data.priority,
                 deadline: data.deadline,
                 status: data.status,
                 description: data.description
